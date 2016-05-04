@@ -21,10 +21,8 @@ void sendCommandToLauncherCallback(const std_msgs::String::ConstPtr& CmdRcv)
     ml.sendCommand(cmd);
   } else if (!strcmp(cmd.c_str(), "fire")) {
     ml.sendCommand(cmd);
-  } else if (strcmp(cmd.c_str(), "stop")) {
-    ROS_INFO("sendCommandToLauncherCallback::Unknown command: [%s]", cmd.c_str());
   }
-  ros::Duration(0.1).sleep();
+  ros::Duration(0.2).sleep();
   cmd = "stop";
   ml.sendCommand(cmd);
 }

@@ -1,0 +1,9 @@
+<launch>
+  <param name="joy_node/dev" value="/dev/input/js1"/>
+  <node pkg="joy" type="joy_node" name="joy_node"/> 
+  <param name="joystick/dev" value="/dev/input/js1"/>
+  <include file="$(find turtlebot_teleop)/launch/xbox360_teleop.launch" />
+
+  <include file="$(find turtlebot_rviz_launchers)/launch/view_navigation.launch" output="screen" />
+
+</launch>

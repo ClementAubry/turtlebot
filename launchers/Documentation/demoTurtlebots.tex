@@ -1,0 +1,327 @@
+\documentclass[11pt, a4paper,notitlepage]{article}
+
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amssymb,amsmath,amsfonts,amsthm}%Maths
+\usepackage{pdfpages}
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{placeins}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\definecolor{almond}{rgb}{0.94, 0.87, 0.8}
+\definecolor{redisen}{RGB}{227,6,19}
+\definecolor{grayisen}{RGB}{192,196,208}
+% \definecolor{grayisen1}{RGB}{172,176,188}
+\definecolor{grayisen1}{RGB}{92,96,108}
+\usepackage{listings}
+\lstset{frame=single,backgroundcolor=\color{grayisen!10},breaklines=true}
+
+
+\lstdefinestyle{Bash}
+{language=bash,
+keywordstyle=\bf\color{black},
+basicstyle=\ttfamily,
+morekeywords={username@hostname},
+alsoletter={\$:~},
+morekeywords=[2]{username@hostname:},
+keywordstyle=[2]{\color{black}},
+literate={\$}{{\textcolor{black}{\$}}}1
+         {:}{{\textcolor{black}{:}}}1
+         {~}{{\textcolor{black}{{\raise.17ex\hbox{$\scriptstyle\sim$}}}}}1,
+% comment=[l]{#},
+% commentstyle=\color{gray}\ttfamily,
+% stringstyle=\color{gray}\ttfamily,
+}
+\lstdefinestyle{cmakelist}
+{language=bash,
+keywordstyle=\bf\color{black},
+basicstyle=\footnotesize \ttfamily,
+morekeywords={username@hostname},
+alsoletter={\$:~\#},
+morekeywords=[2]{username@hostname:},
+keywordstyle=[2]{\color{black}},
+literate={\$}{{\textcolor{black}{\$}}}1
+         {:}{{\textcolor{black}{:}}}1
+         {\#}{{\textcolor{black}{\#}}}1
+         {~}{{\textcolor{black}{{\raise.17ex\hbox{$\scriptstyle\sim$}}}}}1,
+}
+
+
+\newcommand{\ladate}{20 Avril 2016}
+
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+\renewcommand{\headrule}{\hbox to\headwidth{%
+  \color{grayisen1}\leaders\hrule height \headrulewidth\hfill}}
+
+\pagestyle{fancy}
+% pour le haut de page
+\lhead{\textcolor{grayisen1}{\ladate}}
+\chead{}
+\rhead{\textcolor{grayisen1}{Démo Robotique}}
+% pour le pied de page
+\cfoot{\textcolor{grayisen1}{Page \thepage/\pageref{fin}}}
+\lfoot{\textcolor{grayisen1}{DP ROB}}
+\rfoot{\textcolor{grayisen1}{ISEN Brest}}
+
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Definition of blocks:
+\tikzset{%
+  block/.style    = {draw, thick, rectangle, minimum height = 3em,
+    minimum width = 3em},
+  sum/.style      = {draw, circle, node distance = 2cm}, % Adder
+  input/.style    = {coordinate}, % Input
+  output/.style   = {coordinate} % Output
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Démo : Navigation des turtlebots}
+\author{Cl\'{e}ment Aubry\\
+clement.aubry@isen-bretagne.fr\\Bureau 202}
+\date{\ladate}
+
+\begin{figure}[!ht]
+  \begin{minipage}{6cm}
+    \includegraphics[width=6cm]{/home/clement/Images/logoISEN.jpg}
+  \end{minipage}%
+  \hspace{2cm}
+\begin{minipage}{6cm}\begin{center}\textcolor{grayisen1}{
+  Clément Aubry\\
+clement.aubry@isen-bretagne.fr\\Bureau 202\\
+  Le \ladate}
+\end{center}\end{minipage}
+\end{figure}
+\noindent\textcolor{redisen}{\rule{\linewidth}{1pt}}
+
+\section*{Matos}
+\begin{enumerate}
+  \item Routeur Wifi Cisco RV180W qui gère un réseau BBBRouter :
+  \begin{itemize}
+    \item[IP Routeur] \texttt{192.168.1.11}
+    \item[Login] \texttt{cisco}
+    \item[Pwd] \texttt{Cisco2Cisco}
+    \item[Adressage] le PC-Turtlebot est adrressé par MAC (\texttt{20:10:7a:fb:2b:ec $\rightarrow$ 192.168.1.66})
+    \item[Adressage] le PC-Controleur est adrressé par MAC (\texttt{b0:5a:da:3d:6c:af $\rightarrow$ 192.168.1.88})
+  \end{itemize}
+  \item PC-Turtlebot
+  \begin{itemize}
+    \item[System] Ubuntu 14.04 LTS, 64 bits "Turtlebot-HP"
+    \item[Login] \texttt{turtlebothp}
+    \item[Pwd] \texttt{turtlebothp}
+    \item \emph{le PC pour le turtlebot est reconnaissable par les deux pions en dessous qui permettent la fixation sur la partie haute du robot.}
+  \end{itemize}
+  \item PC controleur
+  \begin{itemize}
+    \item[System] Ubuntu 14.04 LTS, 64 bits
+    \item \emph{Pour l'instant PC C.A.}
+  \end{itemize}
+  \item Turtlebot (Kobuki base \& Kinect)
+  \item Manette XBox One
+  \item Base de charge Turtlebot
+  \item Chargeur PC-Turtlebot
+  \item Multiprise
+\end{enumerate}
+
+\section{Mise en fonctionnement}\label{st:bringup}
+\subsection{Brancher le routeur}
+\subsection{Démarrage du turlebot}
+\begin{itemize}
+  \item Placer le PC sur le turlebot
+  \item Allumer le PC et le refermer
+  \item Brancher la base Kobuki
+  \item Brancher la Kinect
+  \item Allumer la base Kobuki
+\end{itemize}
+
+\subsection{Démarrage du PC-Turtlebot}
+\begin{itemize}
+  \item Accéder au PC-Turtlebot par NoMachine.
+  \item Ouvrir un terminal
+\end{itemize}
+
+\begin{lstlisting}[style=Bash]
+  username@PC-Turtlebot:~$ printenv | grep ROS
+    ROS_DISTRO=indigo
+    ROS_PACKAGE_PATH=/opt/ros/indigo/share:/opt/ros/indigo/stacks
+    ROS_ETC_DIR=/opt/ros/indigo/etc/ros
+    ROS_ROOT=/opt/ros/indigo/share/ros
+    ROS_MASTER_URI=http://192.168.1.66:11311
+    ROSLISP_PACKAGE_DIRECTORIES=
+    ROS_HOSTNAME=192.168.1.66
+\end{lstlisting}
+
+Si une des variables ROS\_ n'est pas bien configuré, faire les exports qui vont bien :
+\begin{lstlisting}[style=Bash]
+#~/.zshrc
+[...]
+source /opt/ros/indigo/setup.zsh
+export TURTLEBOT_3D_SENSOR=kinect
+export ROS_MASTER_URI=http://192.168.1.66:11311 #Adress where ROSCORE is running => turtlebot PC
+export ROS_HOSTNAME=192.168.1.66 # IP of LOCALHOST
+[...]
+\end{lstlisting}
+Lancer le soft de gestion du robot :
+\begin{lstlisting}[style=Bash]
+  username@PC-Turtlebot:~$ roslaunch turtlebot_bringup minimal.launch
+\end{lstlisting}
+
+\subsection{Démarrage du PC controleur}
+\begin{itemize}
+  \item Allumer le PC.
+  \item Brancher le PC au routeur en filaire
+  \item Vérifier la connectivité par NoMachine
+\end{itemize}
+
+\begin{lstlisting}[style=Bash]
+  username@PC-Control:~$ printenv | grep ROS
+    ROS_DISTRO=indigo
+    ROS_PACKAGE_PATH=/opt/ros/indigo/share:/opt/ros/indigo/stacks
+    ROS_ETC_DIR=/opt/ros/indigo/etc/ros
+    ROS_ROOT=/opt/ros/indigo/share/ros
+    ROS_MASTER_URI=http://192.168.1.66:11311
+    ROSLISP_PACKAGE_DIRECTORIES=
+    ROS_HOSTNAME=192.168.1.88
+\end{lstlisting}
+
+Si une des variables ROS\_ n'est pas bien configuré, faire les exports qui vont bien :
+\begin{lstlisting}[style=Bash]
+#~/.zshrc
+[...]
+source /opt/ros/indigo/setup.zsh
+export TURTLEBOT_3D_SENSOR=kinect
+export ROS_MASTER_URI=http://192.168.1.66:11311 #Adress where ROSCORE is running => turtlebot PC
+export ROS_HOSTNAME=192.168.1.88 # IP of LOCALHOST
+[...]
+\end{lstlisting}
+
+Lancer le soft de monitoring du robot :
+\begin{lstlisting}[style=Bash]
+  username@PC-Control:~$ rqt -s kobuki_dashboard
+\end{lstlisting}
+
+\section{Préparation de la démo AMCL}\label{st:gmapping}
+Il faut tout d'abord créer la carte de l'endroit ou l'on afit la démo. Le plus simple est d'avoir une arène dans laquelle personne ne pénetre. La partie \ref{st:bringup} doit être OK.
+\subsection{PC-Turtlebot}
+\begin{itemize}
+  \item Accéder au PC-Turtlebot par NoMachine.
+  \item Ouvrir un terminal
+\end{itemize}
+\begin{lstlisting}[style=Bash]
+  username@PC-Turtlebot:~$ roslaunch turtlebot_navigation gmapping_demo.launch
+\end{lstlisting}
+
+\subsection{PC-Control}\label{sst:bringup:control}
+\begin{itemize}
+  \item Brancher la manette de xbox
+  \item Ouvrir un terminal
+\end{itemize}
+\begin{lstlisting}[style=Bash]
+  username@PC-Control:~$ cd Developpement/turtlebot
+  username@PC-Control:~/Developpements/turtlebot$ roslaunch demoJPO_PC_Nav_Brest.launch
+\end{lstlisting}
+Une interface graphique se lance et permet de visualiser la carte que le robot va construire lorsqu'il se déplacera.
+
+Pour déplacer le robot, on utilise la manette :
+\begin{itemize}
+  \item Appui sur \textsc{LB} pour activation de la téléopération
+  \item Utilisation du stick en haut a gauche de la manette pour le déplacement.
+  \item Si on lache \textsc{LB}, on envoi plus de commande (implique qu'un appui sur \textsc{LB} bloque les commandes envoyées en mode auto)
+\end{itemize}
+
+Lorsque la carte construite est convenable(i.e. pas de grossière erreur lors de multiples rotations). On va pouvoir la sauvegarder sur le robot pour une tilisation ultérieure. Si ce n'est pas le cas, reprennez au début de cette partie.
+\subsection{PC-Turtlebot - sauvegarde de la carte}
+\begin{itemize}
+  \item Accéder au PC-Turtlebot par NoMachine.
+  \item Ouvrir un terminal
+\end{itemize}
+\begin{lstlisting}[style=Bash]
+  username@PC-Turtlebot:~$ rosrun map_server map_saver -f ./nomDeLaCarte
+\end{lstlisting}
+La carte est sauvegardé par deux fichiers : nomDeLaCarte.pgm et nomDeLaCarte.yaml.
+On peut alors éteindre les commandes lancées sur les 2 PC à la partie 2. On peut aussi tout éteindre...
+
+\section{Démo - localisation sur une carte par AMCL}
+ La partie \ref{st:bringup} doit être faite en premier. La partie \ref{st:gmapping} à été faite aussi mais les commandes qu'elle impliques sont arrêtées.\\
+AMCL = Adaptive Monte Carlo Localization, méthode probabiliste de localisation, c'est un filtre à particule qui estime la position du robot à partir d'une carte connue. Pour faire simple, on dit au départ que le robot peut se trouver n'importe ou sur la carte, on disperse toutes les particules sur la carte (immaginez lancer des grains de sables sur la carte, chaque grain est une particule et représente une position probable pour le robot). Comme le robot mesure les distances aux obstacles les plus proches (par l'infra-rouge de la kinect), on va pouvoir dire que certains grains de sables ne sont pas des positions possibles : si le robot mesure une distance de 2m devant lui, toutess les particules positionnées à moins de 2m d'un mur peuvent être ramenées à cette distance. L'algorithme va, au fur et à mesure des distances que le robot va acquérir, concentrer les particules vers l'endroit ou le robot se trouve réellement (bon c'est bien plus compliqué que ça mais pour JPO ca ira...)
+
+\subsection{PC-Turtlebot}
+On doit tout d'abord spécifier la carte qui sera utilisée par la démo. Pour des problèmes de droits utilisateurs, le plus simple est de copier cette carte vers /tmp.
+\begin{itemize}
+  \item Accéder au PC-Turtlebot par NoMachine.
+  \item Ouvrir un terminal
+\end{itemize}
+\begin{lstlisting}[style=Bash]
+  username@PC-Turtlebot:~$ cp nomDeLaCarte.* /tmp
+  username@PC-Turtlebot:~$ export TURTLEBOT_MAP_FILE=/tmp/nomDeLaCarte.yaml
+  username@PC-Turtlebot:~$ roslaunch turtlebot_navigation amcl_demo.launch
+\end{lstlisting}
+
+\subsection{PC-Control}
+Le fichier à lancer et les instructions pour déplacer le robot sont les même qu'à la partie \ref{sst:bringup:control} :
+\begin{itemize}
+  \item Brancher la manette de xbox
+  \item Ouvrir un terminal
+\end{itemize}
+\begin{lstlisting}[style=Bash]
+  username@PC-Control:~$ cd Developpement/turtlebot
+  username@PC-Control:~/Developpements/turtlebot$ roslaunch demoJPO_PC_Nav_Brest.launch
+\end{lstlisting}
+Une interface graphique se lance et permet de visualiser la carte que le robot va construire lorsqu'il se déplacera.
+
+Pour déplacer le robot, on utilise la manette :
+\begin{itemize}
+  \item Appui sur \textsc{LB} pour activation de la téléopération
+  \item Utilisation du stick en haut a gauche de la manette pour le déplacement.
+  \item Si on lache \textsc{LB}, on envoi plus de commande (implique qu'un appui sur \textsc{LB} bloque les commandes envoyées en mode auto)
+\end{itemize}
+
+\subsection{Utilisation}
+
+Tout se fait à partir du PC-Control :
+Au lancement, il faut donner une première estimation de sa position a robot:
+\begin{itemize}
+  \item On click sur "2D Pose Estimate"
+  \item On click sur la carte à l'endroit approximatif ou se trouve le robot physiquement, attention, il faut maintenir le click et bouger autour du point pour que la direction de la flèche sot orientée de la même manière que le robot.
+\end{itemize}
+Ensite, pour naviguer :
+\begin{itemize}
+  \item On click sur "2D Nav Goal"
+  \item On click sur la carte à l'endroit que l'on vet atteindre, le robot va y aller en évitant les obstacles sur son chemin (peut prendre un peu de temps.)
+\end{itemize}
+Il est toujours possible de reprendre le contrôle par la manette en appuyant sur \textsc{LB}.
+
+Pour annuler une commande "2D Nav Goal", il faut en envoyer une autre à l'endroit ou se trouve le robot.
+
+\subsection{Synthèse}
+\begin{enumerate}
+  \item Le PC-Turtlebot doit avoir deux commandes lancées :
+    \begin{lstlisting}[style=Bash]
+      username@PC-Turtlebot:~$ roslaunch turtlebot_navigation amcl_demo.launch
+    \end{lstlisting}, et
+    \begin{lstlisting}[style=Bash]
+      username@PC-Turtlebot:~$ roslaunch turtlebot_bringup minimal.launch
+    \end{lstlisting}
+  \item Le PC Control doit avoir deux commande lancées :
+    \begin{lstlisting}[style=Bash]
+      username@PC-Control:~$ rqt -s kobuki_dashboard
+    \end{lstlisting}, et
+    \begin{lstlisting}[style=Bash]
+      username@PC-Control:~/Developpements/turtlebot$ roslaunch demoJPO_PC_Nav_Brest.launch
+    \end{lstlisting}
+  \item Le PC Control doit avoir deux interfaces graphiques :
+  \begin{itemize}
+    \item le dashboard qui informe sur l'état du robot
+    \item l'interface de navigation
+  \end{itemize}
+\end{enumerate}
+
+
+
+\label{fin}
+\end{document}

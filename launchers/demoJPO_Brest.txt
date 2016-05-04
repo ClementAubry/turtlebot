@@ -1,0 +1,5 @@
+rosparam set joy_node/dev "/dev/input/js0"
+rosrun joy joy_node
+
+rosparam set /joystick/dev "/dev/input/js0"
+roslaunch turtlebot_teleop xbox360_teleop.launch

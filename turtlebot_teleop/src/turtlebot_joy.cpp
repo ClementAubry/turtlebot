@@ -30,64 +30,163 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/Joy.h>
+#include "std_msgs/String.h"
 #include "boost/thread/mutex.hpp"
 #include "boost/thread/thread.hpp"
 #include "ros/console.h"
 
-class TurtlebotTeleop
-{
+class TurtlebotTeleop {
 public:
+
   TurtlebotTeleop();
 
 private:
+
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
   void publish();
+  void publishAButton();
 
   ros::NodeHandle ph_, nh_;
 
-  int linear_, angular_, deadman_axis_;
+  int linear_, angular_, deadman_axis_, a_button_, updown_axis_, rightleft_axis_;
   double l_scale_, a_scale_;
-  ros::Publisher vel_pub_;
+  ros::Publisher  vel_pub_;
+  ros::Publisher  missile_launcher_pub_;
   ros::Subscriber joy_sub_;
 
   geometry_msgs::Twist last_published_;
+  geometry_msgs::Twist last_published_missile_;
   boost::mutex publish_mutex_;
   bool deadman_pressed_;
+  bool fire_button_pressed_;
+  bool no_missile_command_;
   bool zero_twist_published_;
   ros::Timer timer_;
-
+  ros::Timer timer_missile_;
 };
 
-TurtlebotTeleop::TurtlebotTeleop():
+TurtlebotTeleop::TurtlebotTeleop() :
   ph_("~"),
   linear_(1),
   angular_(0),
   deadman_axis_(4),
   l_scale_(0.3),
-  a_scale_(0.9)
+  a_scale_(0.9),
+  a_button_(5),
+  updown_axis_(4),
+  rightleft_axis_(3)
 {
   ph_.param("axis_linear", linear_, linear_);
   ph_.param("axis_angular", angular_, angular_);
   ph_.param("axis_deadman", deadman_axis_, deadman_axis_);
   ph_.param("scale_angular", a_scale_, a_scale_);
   ph_.param("scale_linear", l_scale_, l_scale_);
+  ph_.param("a_button", a_button_, a_button_);
+  ph_.param("updown_axis_", updown_axis_, updown_axis_);
+  ph_.param("rightleft_axis", rightleft_axis_, rightleft_axis_);
 
-  deadman_pressed_ = false;
+  deadman_pressed_      = false;
+  fire_button_pressed_  = false;
   zero_twist_published_ = false;
+  no_missile_command_   = false;
 
-  vel_pub_ = ph_.advertise<geometry_msgs::Twist>("cmd_vel", 1, true);
-  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 10, &TurtlebotTeleop::joyCallback, this);
+  vel_pub_              = ph_.advertise<geometry_msgs::Twist>("cmd_vel", 1, true);
+  missile_launcher_pub_ = ph_.advertise<std_msgs::String>("missilelaunchercmd",
+                                                          1,
+                                                          true);
+  joy_sub_ = nh_.subscribe<sensor_msgs::Joy>(
+    "joy",
+    10,
+    &TurtlebotTeleop::
+    joyCallback,
+    this);
 
-  timer_ = nh_.createTimer(ros::Duration(0.1), boost::bind(&TurtlebotTeleop::publish, this));
+  timer_ =
+    nh_.createTimer(ros::Duration(0.1),
+                    boost::bind(&TurtlebotTeleop::publish, this));
+  timer_missile_ =
+    nh_.createTimer(ros::Duration(0.5),
+                    boost::bind(&TurtlebotTeleop::publishAButton, this));
 }
 
 void TurtlebotTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
-{ 
-  geometry_msgs::Twist vel;
-  vel.angular.z = a_scale_*joy->axes[angular_];
-  vel.linear.x = l_scale_*joy->axes[linear_];
-  last_published_ = vel;
+{
+  std_msgs::String  msg;
+  std::stringstream ss;
+  geometry_msgs::Twist vel, velMissile;
+
+  vel.angular.z    = a_scale_ * joy->axes[angular_];
+  vel.linear.x     = l_scale_ * joy->axes[linear_];
+  last_published_  = vel;
   deadman_pressed_ = joy->buttons[deadman_axis_];
+
+  velMissile.linear.y     = joy->axes[updown_axis_];
+  velMissile.linear.x     = joy->axes[rightleft_axis_];
+  last_published_missile_ = velMissile;
+
+  fire_button_pressed_ = joy->buttons[a_button_];
+}
+
+void TurtlebotTeleop::publishAButton()
+{
+  boost::mutex::scoped_lock lock(publish_mutex_);
+
+  std_msgs::String  msg;
+  std::stringstream ss;
+
+  if (fire_button_pressed_)
+  {
+    ss.str("");
+    ss << "fire";
+    msg.data = ss.str();
+    missile_launcher_pub_.publish(msg);
+    no_missile_command_ = false;
+  }
+  float deadzoneMl = 0.3;
+
+  if (last_published_missile_.linear.y > deadzoneMl) {
+    ss.str("");
+    ss << "up";
+    msg.data = ss.str();
+    missile_launcher_pub_.publish(msg);
+    no_missile_command_ = false;
+  }
+
+  if (last_published_missile_.linear.y < -deadzoneMl) {
+    ss.str("");
+    ss << "down";
+    msg.data = ss.str();
+    missile_launcher_pub_.publish(msg);
+    no_missile_command_ = false;
+  }
+
+  if (last_published_missile_.linear.x > deadzoneMl) {
+    ss.str("");
+    ss << "left";
+    msg.data = ss.str();
+    missile_launcher_pub_.publish(msg);
+    no_missile_command_ = false;
+  }
+
+  if (last_published_missile_.linear.x < -deadzoneMl) {
+    ss.str("");
+    ss << "right";
+    msg.data = ss.str();
+    missile_launcher_pub_.publish(msg);
+    no_missile_command_ = false;
+  }
+
+  if (!no_missile_command_ &&
+      (last_published_missile_.linear.y <= deadzoneMl) &&
+      (last_published_missile_.linear.y >= -deadzoneMl) &&
+      (last_published_missile_.linear.x <= deadzoneMl) &&
+      (last_published_missile_.linear.x >= -deadzoneMl)) {
+    ss.str("");
+    ss << "stop";
+    msg.data = ss.str();
+    missile_launcher_pub_.publish(msg);
+    no_missile_command_ = true;
+  }
 }
 
 void TurtlebotTeleop::publish()
@@ -97,16 +196,16 @@ void TurtlebotTeleop::publish()
   if (deadman_pressed_)
   {
     vel_pub_.publish(last_published_);
-    zero_twist_published_=false;
+    zero_twist_published_ = false;
   }
-  else if(!deadman_pressed_ && !zero_twist_published_)
+  else if (!deadman_pressed_ && !zero_twist_published_)
   {
     vel_pub_.publish(*new geometry_msgs::Twist());
-    zero_twist_published_=true;
+    zero_twist_published_ = true;
   }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   ros::init(argc, argv, "turtlebot_teleop");
   TurtlebotTeleop turtlebot_teleop;

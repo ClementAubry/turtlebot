@@ -38,7 +38,7 @@
   <arg name="num_worker_threads" default="4" />
 
   <!-- Laserscan topic -->
-  <arg name="scan_topic" default="scan"/>
+  <arg name="scan_topic" default="kinect_scan"/>
 
   <include file="$(find turtlebot_bringup)/launch/includes/3dsensor/$(arg 3d_sensor).launch.xml">
     <arg name="camera"                          value="$(arg camera)"/>
@@ -75,4 +75,7 @@
       <remap from="$(arg camera)/scan" to="$(arg scan_topic)"/>
     </node>
   </group>
+<node name="laser_driver" pkg="hokuyo_node" type="hokuyo_node">
+  <param name="frame_id" value="base_laser_link"/>
+</node>
 </launch>

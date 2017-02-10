@@ -14,10 +14,14 @@
   <xacro:include filename="$(find turtlebot_description)/urdf/stacks/hexagons.urdf.xacro"/>
   <!-- 3D Sensors -->
   <xacro:include filename="$(find turtlebot_description)/urdf/sensors/kinect.urdf.xacro"/>
-  <!-- <xacro:include filename="$(find turtlebot_description)/urdf/sensors/hokuyo.urdf.xacro"/> -->
   <xacro:include filename="$(find turtlebot_description)/urdf/sensors/asus_xtion_pro.urdf.xacro"/>
   <xacro:include filename="$(find turtlebot_description)/urdf/sensors/asus_xtion_pro_offset.urdf.xacro"/>
+  <xacro:include filename="$(find turtlebot_description)/urdf/sensors/astra.urdf.xacro"/>
+  <xacro:include filename="$(find turtlebot_description)/urdf/sensors/r200.urdf.xacro"/>
+  <xacro:include filename="$(find turtlebot_description)/urdf/sensors/hokuyo.urdf.xacro"/>
 
+<!-- avant merge pour astra, la ligne dessus (urdf hokuyo) était comentée et pas le bloc suivant. C'est l'un ou l'autre-->
+<!--
   <joint name="laser" type="fixed">
     <origin xyz="-0.005 0.00 0.360" rpy="3.14159 0 0" />
     <parent link="base_link" />
@@ -39,5 +43,5 @@
         izz="0.0001" />
     </inertial>
   </link>
-
+-->
 </robot>

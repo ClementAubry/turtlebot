@@ -9,7 +9,7 @@
   <arg unless="$(arg depth_registration)" name="depth" value="depth" />
 
   <!-- Processing Modules -->
-  <arg name="rgb_processing"                  default="true"/>                                      
+  <arg name="rgb_processing"                  default="true"/>
   <arg name="ir_processing"                   default="true"/>
   <arg name="depth_processing"                default="true"/>
   <arg name="depth_registered_processing"     default="true"/>

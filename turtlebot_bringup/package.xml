@@ -1,6 +1,6 @@
 <package>
   <name>turtlebot_bringup</name>
-  <version>2.3.11</version>
+  <version>2.3.14</version>
   <description>
      turtlebot_bringup provides roslaunch scripts for starting the TurtleBot base functionality. 
   </description>
@@ -13,6 +13,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <run_depend>realsense_camera</run_depend>
+  <run_depend>astra_launch</run_depend>
   <run_depend>zeroconf_avahi</run_depend>
   <run_depend>yocs_cmd_vel_mux</run_depend>
   <run_depend>kobuki_capabilities</run_depend>

@@ -18,7 +18,7 @@
   <xacro:include filename="$(find turtlebot_description)/urdf/sensors/asus_xtion_pro_offset.urdf.xacro"/>
   <xacro:include filename="$(find turtlebot_description)/urdf/sensors/astra.urdf.xacro"/>
   <xacro:include filename="$(find turtlebot_description)/urdf/sensors/r200.urdf.xacro"/>
-  <xacro:include filename="$(find turtlebot_description)/urdf/sensors/hokuyo.urdf.xacro"/>
+<!--  <xacro:include filename="$(find turtlebot_description)/urdf/sensors/hokuyo.urdf.xacro"/> -->
 
 <!-- avant merge pour astra, la ligne dessus (urdf hokuyo) était comentée et pas le bloc suivant. C'est l'un ou l'autre-->
 <!--

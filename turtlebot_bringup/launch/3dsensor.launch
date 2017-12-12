@@ -19,6 +19,7 @@
   <arg name="camera"      default="camera"/>
   <arg name="publish_tf"  default="false"/>
   <arg name="3d_sensor"   default="$(env TURTLEBOT_3D_SENSOR)"/>  <!-- kinect, asus_xtion_pro, hokuyo, astra -->
+  <arg name="has_hokuyo"   default="$(env TURTLEBOT_HAS_HOKUYO)"/>  <!-- kinect, asus_xtion_pro, hokuyo, astra -->
 
   <!-- Factory-calibrated depth registration -->
   <arg name="depth_registration"              default="true"/>
@@ -38,7 +39,7 @@
   <arg name="num_worker_threads" default="4" />
 
   <!-- Laserscan topic -->
-  <arg name="scan_topic" default="kinect_scan" unless="$(arg has_hokuyo)"/>
+  <arg name="scan_topic" default="kinect_scan" />
 
   <include file="$(find turtlebot_bringup)/launch/includes/3dsensor/$(arg 3d_sensor).launch.xml">
     <arg name="camera"                          value="$(arg camera)"/>
@@ -76,7 +77,9 @@
     </node>
   </group>
 
-<node name="laser_driver" pkg="hokuyo_node" type="hokuyo_node" unless="$(arg has_hokuyo)">
-  <param name="frame_id" value="base_laser_link"/>
-</node>
+ <!-- <group if="$(arg has_hokuyo)"> -->
+    <node name="laser_driver" pkg="hokuyo_node" type="hokuyo_node">
+      <param name="frame_id" value="base_laser_link"/>
+    </node>
+<!--  </group> -->
 </launch>

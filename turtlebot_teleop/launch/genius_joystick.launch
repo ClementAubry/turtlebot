@@ -1,0 +1,29 @@
+<!--
+  Driver for the Genius MaxFighter F-31U joystick.
+
+  Use the D pad while pressing and holding the left trigger button (5) to control.
+-->
+<launch>
+  <!--  smooths inputs from cmd_vel_mux/input/teleop_raw to cmd_vel_mux/input/teleop -->
+  <include file="$(find turtlebot_teleop)/launch/includes/velocity_smoother.launch.xml"/>
+
+  <node pkg="turtlebot_teleop" type="turtlebot_teleop_joy_calibration" name="turtlebot_teleop_joystick" output="screen">
+    <param name="scale_angular" value="1.5"/>
+    <param name="scale_linear" value="0.5"/>
+    <param name="axis_linear" value="1"/>
+    <param name="axis_angular" value="0"/>
+    <param name="axis_deadman" value="0"/>
+    <param name="is_calibrated" value="true"/>
+    <param name="axis_lin_min" value="0"/>
+    <param name="axis_lin_max" value="1"/>
+    <param name="axis_lin_mean" value="0,41"/>
+    <param name="axis_ang_mean" value="0,44"/>
+    <param name="axis_ang_min" value="0"/>
+    <param name="axis_ang_max" value="1"/>
+    <remap from="turtlebot_teleop_joystick/cmd_vel" to="teleop_velocity_smoother/raw_cmd_vel"/>
+  </node>
+
+  <param name="joystick/dev" value="/dev/input/js1"/>
+  <node pkg="joy" type="joy_node" name="joystick"/>
+
+</launch>

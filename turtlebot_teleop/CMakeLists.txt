@@ -19,6 +19,9 @@ catkin_package(
 add_executable(turtlebot_teleop_joy src/turtlebot_joy.cpp)
 target_link_libraries(turtlebot_teleop_joy ${catkin_LIBRARIES})
 
+add_executable(turtlebot_teleop_joy_calibration src/turtlebot_joy_calibration.cpp)
+target_link_libraries(turtlebot_teleop_joy_calibration ${catkin_LIBRARIES})
+
 #############
 ## Install ##
 #############
@@ -31,6 +34,11 @@ install(PROGRAMS
 
 ## Mark executables and/or libraries for installation
 install(TARGETS turtlebot_teleop_joy
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+## Mark executables and/or libraries for installation
+install(TARGETS turtlebot_teleop_joy_calibration
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

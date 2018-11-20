@@ -40,7 +40,7 @@ public:
   TurtlebotTeleop();
 
 private:
-  void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
+  void joyCallback(const sensor_msgs::Joy::ConstPtr &joy);
   void publish();
 
   ros::NodeHandle ph_, nh_;
@@ -58,13 +58,12 @@ private:
 
 };
 
-TurtlebotTeleop::TurtlebotTeleop():
-  ph_("~"),
-  linear_(1),
-  angular_(0),
-  deadman_axis_(4),
-  l_scale_(0.3),
-  a_scale_(0.9)
+TurtlebotTeleop::TurtlebotTeleop() : ph_("~"),
+                                     linear_(1),
+                                     angular_(0),
+                                     deadman_axis_(4),
+                                     l_scale_(0.3),
+                                     a_scale_(0.9)
 {
   ph_.param("axis_linear", linear_, linear_);
   ph_.param("axis_angular", angular_, angular_);
@@ -84,6 +83,7 @@ TurtlebotTeleop::TurtlebotTeleop():
 void TurtlebotTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
 { 
   geometry_msgs::Twist vel;
+  ROS_INFO("Received x=[%f],z=[%f]: ", joy->axes[linear_], joy->axes[angular_]);
   vel.angular.z = a_scale_*joy->axes[angular_];
   vel.linear.x = l_scale_*joy->axes[linear_];
   last_published_ = vel;
